@@ -170,7 +170,10 @@ footer .nap{color:var(--mist);font-weight:600}
   .call-top{padding:.55rem .85rem;font-size:.8rem}
   .cta{width:100%;max-width:21rem}
   .svc{padding:1.6rem 1.3rem}
-  .svc.feature .art{width:44%;opacity:.8}
+  /* On a narrow card the absolutely-positioned artwork overlapped the heading.
+     Put it back in normal flow above the text instead. */
+  .svc.feature .art{position:static;width:132px;margin:0 0 .5rem;animation:none}
+  .svc.feature{min-height:0}
 }
 
 /* ---- reduced-motion safety net ----
