@@ -65,6 +65,28 @@ anywhere in the page copy (verified by grep for "Juan"/"Carrazco" against the se
 - They sell **logistics and planning**; an inquiry form with dates + group size is the single
   highest-value thing a one-pager can give them.
 
+## Bugs found and fixed during this build (all verified live)
+1. **Blank hero for reduced-motion users.** Hero elements start at `opacity:0` and rely on a CSS
+   entrance animation, while `@media (prefers-reduced-motion: reduce){*{animation:none!important}}`
+   disables that animation — so the headline, CTAs and phone number never appeared. Fixed with a
+   reduced-motion override forcing the end state.
+2. **Artwork overlapped the feature heading** on narrow phones. The absolutely-positioned tasting-
+   glasses SVG sat on top of "Brewery & Winery Tasting Tours". Fixed by returning it to normal flow
+   below 560px.
+3. **Counter displayed "0"** until its animation finished, and would have stayed "0" permanently if
+   JS were throttled — i.e. "0 Valley communities served", a false statement. The real value now
+   lives in the HTML and is only animated when motion is allowed.
+4. **Aurora canvas animated forever**, including when scrolled off-screen or in a background tab.
+   Now paused via IntersectionObserver + `visibilitychange` (mobile battery).
+
+### ⚠ Same bug #1 exists in other demos in this folder — NOT fixed here (out of scope)
+`master-auto-repair/index.html` has **6** hero elements at `opacity:0;animation:rise…` and **zero**
+reduced-motion override. Any prospect whose phone has "Reduce Motion" on (common on iOS for battery
+and accessibility) sees a **blank hero** — no headline, no CTA, no phone number. That demo is
+already deployed at `mrjcarrazco/master-auto-demo`. Recommend applying the same override block
+before it is shown to that owner. `ohana-grindz` appears to already carry an override;
+`er-automotive` does not use the pattern.
+
 ## Deploy gate
 Deploy pre-approved per demos model (precedent: `master-auto-repair` → mrjcarrazco/master-auto-demo)
 and explicit task approval. Pages repo: `mrjcarrazco/true-north-demo`, main / root.
