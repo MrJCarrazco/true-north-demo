@@ -415,7 +415,7 @@ if(!rm){
 /* ---- aurora borealis + starfield ---- */
 const cv=document.getElementById('aurora');
 if(cv){
-  const cx=cv.getContext('2d');let W=0,H=0,stars=[],dpr=Math.min(devicePixelRatio||1,2);
+  const cx=cv.getContext('2d');let W=0,H=0,stars=[],raf=0,running=false,dpr=Math.min(devicePixelRatio||1,2);
   const fit=()=>{const r=cv.parentElement.getBoundingClientRect();
     W=Math.max(r.width,320);H=Math.max(r.height,480);
     cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0);
@@ -472,10 +472,22 @@ if(cv){
     cx.clearRect(0,0,W,H);
     drawStars(t);
     for(const b of BANDS)drawBand(b,t);
-    if(!rm)requestAnimationFrame(frame);
+    raf=running?requestAnimationFrame(frame):0;
   }
-  if(rm){requestAnimationFrame(t=>{cx.clearRect(0,0,W,H);drawStars(t);for(const b of BANDS)drawBand(b,0)})}
-  else requestAnimationFrame(frame);
+  function paintOnce(){requestAnimationFrame(t=>{if(!W)fit();cx.clearRect(0,0,W,H);drawStars(t);for(const b of BANDS)drawBand(b,0)})}
+
+  /* Mobile-first: never burn CPU/battery animating a hero that is scrolled
+     off-screen or sitting in a background tab. */
+  function start(){if(rm||running)return;running=true;raf=requestAnimationFrame(frame)}
+  function stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=0}
+
+  if(rm){paintOnce()}
+  else{
+    start();
+    new IntersectionObserver(es=>es.forEach(e=>e.isIntersecting?start():stop()),{threshold:0})
+      .observe(cv.parentElement);
+    document.addEventListener('visibilitychange',()=>document.hidden?stop():start());
+  }
 }
 
 /* magnetic buttons */
